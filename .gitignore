@@ -1,0 +1,15 @@
+# STM32CubeIDE Settings
+.settings/
+.cproject
+.mxproject
+.project
+
+# VS Code Settings
+.vscode/
+
+# Output Directories
+Debug/
+Release/
+
+# macOS Desktop Services Store
+.DS_Store
