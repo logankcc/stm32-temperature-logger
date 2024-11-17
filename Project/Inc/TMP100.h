@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <cstdint>
 #include <unordered_map>
 
 #include "stm32f4xx_hal.h"
@@ -16,7 +15,6 @@ public:
 	TMP100(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address);
 
 	// Public methods
-	uint8_t getResolutionBits();
 	HAL_StatusTypeDef writeConfigurationReg(uint8_t config_byte);
 	HAL_StatusTypeDef triggerOneShotTemperatureConversion();
 	HAL_StatusTypeDef readTemperatureReg(uint16_t *temperature);
@@ -33,7 +31,10 @@ private:
 	uint8_t i2c_address;
 	uint8_t resolution_bits;
 
-	// Static maps
-	static const std::unordered_map<uint8_t, float> resolution_map;
-	static const std::unordered_map<uint8_t, int> conversion_time_map;
+	// Static constant members
+	static const float resolution[4];
+	static const int resolution_conversion_time[4];
+	static const int resolution_bit_shift[4];
+	static const uint16_t resolution_signed_bit[4];
+	static const uint16_t resolution_sign_extension[4];
 };

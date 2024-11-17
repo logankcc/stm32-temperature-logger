@@ -7,6 +7,7 @@
 #include "tmp100.h"
 #include "eeprom.h"
 
+// Program timing
 constexpr uint32_t TEN_MINUTE_DELAY_MS = 600000;
 
 using utility::logErrorMessage;

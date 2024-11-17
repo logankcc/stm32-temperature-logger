@@ -5,12 +5,20 @@
 #include "tmp100.h"
 #include "project_utility.h"
 
-#define TEMPERATURE_REG 0x00
-#define CONFIGURATION_REG 0x01
+// Masks for TMP100 configuration bits
+constexpr uint8_t SD_BIT_MASK = 0x01;
+constexpr uint8_t OS_BIT_MASK = 0x80;
+constexpr uint8_t R1R0_BIT_MASK = 0x60;
+
+// TMP100 register addresses
+constexpr uint8_t TEMPERATURE_REG = 0x00;
+constexpr uint8_t CONFIGURATION_REG = 0x01;
+
+
+// Bit shift for extracting resolution from the configuration byte
+constexpr int RESOLUTION_BIT_SHIFT = 5;
 
 using utility::getI2CReadAddress, utility::getI2CWriteAddress;
-
-// TODO: Remove magic numbers.
 
 // ------------------------------------------------------------------------------------------------
 // Public Methods
@@ -33,11 +41,6 @@ TMP100::TMP100(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address) : i2c_handle(
 	}
 }
 
-uint8_t TMP100::getResolutionBits()
-{
-	return this->resolution_bits;
-}
-
 HAL_StatusTypeDef TMP100::writeConfigurationReg(uint8_t config_byte)
 {
 	HAL_StatusTypeDef status;
@@ -49,7 +52,7 @@ HAL_StatusTypeDef TMP100::writeConfigurationReg(uint8_t config_byte)
 		this->i2c_handle,
 		getI2CWriteAddress(this->i2c_address),
 		buffer,
-		2,
+		sizeof(buffer),
 		HAL_MAX_DELAY);
 
 	if (status != HAL_OK)
@@ -74,12 +77,12 @@ HAL_StatusTypeDef TMP100::triggerOneShotTemperatureConversion()
 		return status;
 	}
 
-	if (!(config_byte & 0x01))
+	if (!(config_byte & SD_BIT_MASK))
 	{
 		return HAL_ERROR;
 	}
 
-	config_byte = config_byte | 0x80;
+	config_byte = config_byte | OS_BIT_MASK;
 	status = this->writeConfigurationReg(config_byte);
 
 	if (status != HAL_OK)
@@ -87,7 +90,8 @@ HAL_StatusTypeDef TMP100::triggerOneShotTemperatureConversion()
 		return status;
 	}
 
-	HAL_Delay(this->conversion_time_map.at(this->getResolutionBits()));
+	int conversion_time = this->resolution_conversion_time[this->resolution_bits];
+	HAL_Delay(conversion_time);
 
 	return HAL_OK;
 }
@@ -113,7 +117,7 @@ HAL_StatusTypeDef TMP100::readTemperatureReg(uint16_t *temperature)
 		this->i2c_handle,
 		getI2CReadAddress(this->i2c_address),
 		buffer,
-		2,
+		sizeof(buffer),
 		HAL_MAX_DELAY);
 
 	if (status != HAL_OK)
@@ -128,14 +132,17 @@ HAL_StatusTypeDef TMP100::readTemperatureReg(uint16_t *temperature)
 
 float TMP100::convertRawTemperatureDataToCelsius(uint16_t raw_temperature_data)
 {
-	int16_t celsius = raw_temperature_data >> 6;
+	int shift_amount = this->resolution_bit_shift[this->resolution_bits];
+	int16_t celsius = raw_temperature_data >> shift_amount;
 
-	if (celsius & 0200)
+	uint16_t signed_bit = this->resolution_signed_bit[this->resolution_bits];
+	if (celsius & signed_bit)
 	{
-		celsius = celsius | 0XFC00;
+		uint16_t sign_extension = this->resolution_sign_extension[this->resolution_bits];
+		celsius = celsius | sign_extension;
 	}
 
-	return celsius * this->resolution_map.at(this->getResolutionBits());
+	return celsius * this->resolution[this->resolution_bits];
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -144,7 +151,7 @@ float TMP100::convertRawTemperatureDataToCelsius(uint16_t raw_temperature_data)
 
 void TMP100::updateResolutionBits(uint8_t config_byte)
 {
-	this->resolution_bits = (config_byte & 0x60) >> 5;
+	this->resolution_bits = (config_byte & R1R0_BIT_MASK) >> RESOLUTION_BIT_SHIFT;
 }
 
 HAL_StatusTypeDef TMP100::writePointerReg(uint8_t reg_address)
@@ -155,7 +162,7 @@ HAL_StatusTypeDef TMP100::writePointerReg(uint8_t reg_address)
 		this->i2c_handle,
 		getI2CWriteAddress(this->i2c_address),
 		&reg_address,
-		1,
+		sizeof(reg_address),
 		HAL_MAX_DELAY);
 
 	return status;
@@ -182,7 +189,7 @@ HAL_StatusTypeDef TMP100::readConfigurationReg(uint8_t *config_byte)
 		this->i2c_handle,
 		getI2CReadAddress(this->i2c_address),
 		buffer,
-		1,
+		sizeof(buffer),
 		HAL_MAX_DELAY);
 
 	if (status != HAL_OK)
@@ -196,17 +203,11 @@ HAL_StatusTypeDef TMP100::readConfigurationReg(uint8_t *config_byte)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Static Maps
+// Static Constants
 // ------------------------------------------------------------------------------------------------
 
-const std::unordered_map<uint8_t, float> TMP100::resolution_map = {
-	{0b00, 0.5},
-	{0b01, 0.25},
-	{0b10, 0.125},
-	{0b11, 0.0625}};
-
-const std::unordered_map<uint8_t, int> TMP100::conversion_time_map = {
-	{0b00, 40},
-	{0b01, 80},
-	{0b10, 160},
-	{0b11, 320}};
+const float TMP100::resolution[4] = {0.5, 0.25, 0.125, 0.0625};
+const int TMP100::resolution_conversion_time[4] = {40, 80, 160, 320};
+const int TMP100::resolution_bit_shift[4] = {7, 6, 5, 4};
+const uint16_t TMP100::resolution_signed_bit[4] = {0x0200, 0x0400, 0x0800, 0x1000};
+const uint16_t TMP100::resolution_sign_extension[4] = {0xFE00, 0xFC00, 0xF800, 0xF000};

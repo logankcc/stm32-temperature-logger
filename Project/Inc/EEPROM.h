@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "stm32f4xx_hal.h"
 
 class EEPROM
@@ -24,5 +22,5 @@ private:
     // Data members
     I2C_HandleTypeDef *i2c_handle;
     uint8_t i2c_address;
-    uint16_t current_write_address = 0x0000;
+    uint16_t current_write_address;
 };
