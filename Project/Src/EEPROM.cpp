@@ -1,5 +1,9 @@
-#include "EEPROM.h"
-#include "utility.h"
+// eeprom.cpp -------------------------------------------------------------------------------------
+// Implementation file for the EEPROM class.
+// ------------------------------------------------------------------------------------------------
+
+#include "eeprom.h"
+#include "project_utility.h"
 
 #define EEPROM_MAX_ADDRESS 0x7FFF
 #define EEPROM_WRITE_CYCLE_DELAY 5
@@ -7,6 +11,12 @@
 using utility::getI2CReadAddress, utility::getI2CWriteAddress;
 
 // TODO: Remove magic numbers.
+
+// ------------------------------------------------------------------------------------------------
+// Public Methods
+// ------------------------------------------------------------------------------------------------
+
+EEPROM::EEPROM(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address) : i2c_handle(i2c_handle), i2c_address(i2c_address) {}
 
 void EEPROM::buildWriteBuffer(uint8_t *buffer, uint16_t data)
 {
