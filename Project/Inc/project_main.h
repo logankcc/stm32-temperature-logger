@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-void project_main();
+void project_main(I2C_HandleTypeDef *i2c_handle);
 
 #ifdef __cplusplus
 }
