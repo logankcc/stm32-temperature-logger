@@ -95,7 +95,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   I2C_HandleTypeDef *i2c_handle = &hi2c1;
-  project_main(i2c_handle);
+  UART_HandleTypeDef *uart_handle = &huart2;
+  project_main(i2c_handle, uart_handle);
   /* USER CODE END 2 */
 
   /* Infinite loop */

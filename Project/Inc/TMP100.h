@@ -19,8 +19,8 @@ private:
 
 	// Private utility methods
 	void updateResolutionBits(uint8_t config_byte);
-	void writePointerReg(uint8_t reg_address);
-	uint8_t readConfigurationReg();
+	HAL_StatusTypeDef writePointerReg(uint8_t reg_address);
+	HAL_StatusTypeDef readConfigurationReg(uint8_t *config_byte);
 
 public:
 	// Constructor
@@ -28,8 +28,8 @@ public:
 
 	// Public methods
 	uint8_t getResolutionBits();
-	void writeConfigurationReg(uint8_t config_byte);
-	void triggerOneShotTemperatureConversion();
-	uint16_t readTemperatureReg();
+	HAL_StatusTypeDef writeConfigurationReg(uint8_t config_byte);
+	HAL_StatusTypeDef triggerOneShotTemperatureConversion();
+	HAL_StatusTypeDef readTemperatureReg(uint16_t *temperature);
 	float convertRawTemperatureDataToCelsius(uint16_t raw_temperature_data);
 };

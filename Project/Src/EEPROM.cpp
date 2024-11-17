@@ -22,7 +22,7 @@ void EEPROM::buildAddressBuffer(uint8_t *address_buffer, uint16_t memory_address
     address_buffer[1] = memory_address;
 }
 
-void EEPROM::writeTwoBytes(uint16_t data)
+HAL_StatusTypeDef EEPROM::writeTwoBytes(uint16_t data)
 {
     HAL_StatusTypeDef status;
     uint8_t buffer[4];
@@ -38,7 +38,7 @@ void EEPROM::writeTwoBytes(uint16_t data)
 
     if (status != HAL_OK)
     {
-        // TODO: Handle error.
+        return status;
     }
 
     this->current_write_address++;
@@ -48,10 +48,17 @@ void EEPROM::writeTwoBytes(uint16_t data)
     }
 
     HAL_Delay(EEPROM_WRITE_CYCLE_DELAY);
+
+    return HAL_OK;
 }
 
-uint16_t EEPROM::readTwoBytes(uint16_t memory_address)
+HAL_StatusTypeDef EEPROM::readTwoBytes(uint16_t memory_address, uint16_t *data)
 {
+    if (data == nullptr)
+    {
+        return HAL_ERROR;
+    }
+
     HAL_StatusTypeDef status;
     uint8_t address_buffer[2];
     uint8_t buffer[2] = {0};
@@ -67,20 +74,24 @@ uint16_t EEPROM::readTwoBytes(uint16_t memory_address)
 
     if (status != HAL_OK)
     {
-        // TODO: Handle error.
+        return status;
     }
-
-    status = HAL_I2C_Master_Receive(
-        this->i2c_handle,
-        getI2CReadAddress(this->i2c_address),
-        buffer,
-        sizeof(buffer),
-        HAL_MAX_DELAY);
-
-    if (status != HAL_OK)
+    else
     {
-        // TODO: Handle error.
+        status = HAL_I2C_Master_Receive(
+            this->i2c_handle,
+            getI2CReadAddress(this->i2c_address),
+            buffer,
+            sizeof(buffer),
+            HAL_MAX_DELAY);
+
+        if (status != HAL_OK)
+        {
+            return status;
+        }
     }
 
-    return (buffer[0] << 8) | buffer[1];
+    *data = (buffer[0] << 8) | buffer[1];
+
+    return HAL_OK;
 }
