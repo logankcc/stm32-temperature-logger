@@ -3,7 +3,7 @@
 .cproject
 .mxproject
 .project
-.launch
+*.launch
 
 # VS Code Settings
 .vscode/
