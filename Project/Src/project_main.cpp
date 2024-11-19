@@ -24,6 +24,7 @@ void project_main(I2C_HandleTypeDef *i2c_handle, UART_HandleTypeDef *uart_handle
 	status = temperature_sensor.writeConfigurationReg(0x21);
 	if (status != HAL_OK)
 	{
+		// TODO: Turn off LED on failure
 		const char *message = "Error: Failed to configure TMP100! Terminating program.";
 		logErrorMessage(uart_handle, message);
 		return;
