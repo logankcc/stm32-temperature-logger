@@ -106,3 +106,6 @@ The entry point for this project is the `project_main` function, implemented in 
 
 - **Resolution Configuration**  
     - The temperature reading resolution is configurable by storing the resolution bits `R1` and `R0` as a data member of the `TMP100` class. However, the method `TMP100::convertRawTemperatureDataToCelsius` assumes the resolution of a passed temperature reading based on the current bit settings. For example, if a 10-bit measurement is passed while the resolution is configured for 9 bits, the Celsius conversion will be incorrect.
+
+- **Power Loss Impact**  
+    - If there is a power loss to the board, the next address in memory will be lost, causing the program to overwrite data on subsequent writes. This issue can be resolved by storing the next memory address in non-volatile memory.
