@@ -1,7 +1,7 @@
 # STM32 Temperature Logger
 This repository contains all the source code required to program an STM32 NUCLEO-F446RE microcontroller to interact with a TMP100 temperature sensor and a 24FC256 EEPROM using C++. The source code is located in the `Project` directory. Auto-generated HAL files, created by STM32CubeIDE, are located in the `Core` and `Drivers` directories.
 
-The entry point for this project is the `project_main` function, implemented in `project_main.cpp`, and called in `main.c`. This structure ensures complete separation between the auto-generated HAL files and the embedded program. As a result, STM32CubeIDE can update the auto-generated files without impacting the program.
+The entry point for this project is the `project_main` function, implemented in `Project/Src/project_main.cpp`, and called in `Core/Src/main.c`. This structure ensures complete separation between the auto-generated HAL files and the embedded program. As a result, STM32CubeIDE can update the auto-generated files without impacting the program.
 
 ## Program Logic
 - **Step 1: Configuration**  
