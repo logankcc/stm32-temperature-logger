@@ -24,11 +24,16 @@ void project_main(I2C_HandleTypeDef *i2c_handle, UART_HandleTypeDef *uart_handle
 	status = temperature_sensor.writeConfigurationReg(0x21);
 	if (status != HAL_OK)
 	{
-		// TODO: Turn off LED on failure
+		// Turn off the on-board green LED to indicate configuration failure
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
 		const char *message = "Error: Failed to configure TMP100! Terminating program.";
 		logErrorMessage(uart_handle, message);
 		return;
 	}
+
+	// Turn on the on-board green LED to indicate configuration success
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
 	// Initialize the 24FC256 EEPROM assuming ADDO, ADD1, and ADD2 are grounded (binary: 0b01010000)
 	// Note: '1010' corresponds to the 4-bit control code
