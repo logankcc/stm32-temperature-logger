@@ -7,7 +7,7 @@ The entry point for this project is the `project_main` function, implemented in 
 - **Step 1: Configuration**  
     - Select the TMP100 **Configuration Register** by writing `0x01` to the **Pointer Register**.  
     - Write `0x21` to the **Configuration Register** during setup to enable **Shut-Down Mode** and set **10-bit Resolution (0.25°C)**.
-    - If configuration fails, turn off the on-board LED to notify of failure and terminate the program.
+    - If configuration fails, turn off the on-board LED to indicate of failure and terminate the program.
 
 - **Step 2: Trigger Conversion**  
     - Select the TMP100  **Configuration Register** by writing `0x01` to the **Pointer Register**.  
