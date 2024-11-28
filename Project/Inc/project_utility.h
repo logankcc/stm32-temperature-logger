@@ -1,6 +1,7 @@
-// project_utility.h ------------------------------------------------------------------------------
-// Header file to define common utility functions.
-// ------------------------------------------------------------------------------------------------
+/**
+ * @file project_utility.h
+ * @brief Header file to define common utility functions.
+ */
 
 #pragma once
 
@@ -12,5 +13,9 @@ namespace utility
 
     uint8_t getI2CWriteAddress(uint8_t i2c_address);
 
+    void logMessage(UART_HandleTypeDef *uart_handle, const char *message);
+
     void logErrorMessage(UART_HandleTypeDef *uart_handle, const char *error_message);
+
+    void scanI2CAddresses(I2C_HandleTypeDef *i2c_handle, UART_HandleTypeDef *uart_handle);
 }
