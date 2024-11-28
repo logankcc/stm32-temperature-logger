@@ -1,6 +1,9 @@
-// project_main.cpp -------------------------------------------------------------------------------
-// Implementation file for the program entry point and core logic.
-// ------------------------------------------------------------------------------------------------
+/**
+ * ------------------------------------------------------------------------------------------------
+ * @file project_main.cpp
+ * @brief Implementation file for the program entry point and core logic.
+ * ------------------------------------------------------------------------------------------------
+ */
 
 #include "project_main.h"
 #include "project_utility.h"

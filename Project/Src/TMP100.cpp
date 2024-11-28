@@ -1,6 +1,9 @@
-// tmp100.cpp -------------------------------------------------------------------------------------
-// Implementation file for the TMP100 class.
-// ------------------------------------------------------------------------------------------------
+/**
+ * ------------------------------------------------------------------------------------------------
+ * @file tmp100.cpp
+ * @brief Implementation file for the TMP100 class.
+ * ------------------------------------------------------------------------------------------------
+ */
 
 #include "tmp100.h"
 #include "project_utility.h"
@@ -14,16 +17,22 @@ constexpr uint8_t R1R0_BIT_MASK = 0x60;
 constexpr uint8_t TEMPERATURE_REG = 0x00;
 constexpr uint8_t CONFIGURATION_REG = 0x01;
 
-
 // Bit shift for extracting resolution from the configuration byte
 constexpr int RESOLUTION_BIT_SHIFT = 5;
 
 using utility::getI2CReadAddress, utility::getI2CWriteAddress;
 
-// ------------------------------------------------------------------------------------------------
-// Public Methods
-// ------------------------------------------------------------------------------------------------
+/**
+ * ------------------------------------------------------------------------------------------------
+ * @section Public_Methods Public Methods
+ * ------------------------------------------------------------------------------------------------
+ */
 
+/**
+ * @brief Constructs a TMP100 object and initializes its resolution bits.
+ * @param i2c_handle Pointer to the I2C handle used for communication.
+ * @param i2c_address The 7-bit I2C address of the TMP100 device.
+ */
 TMP100::TMP100(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address) : i2c_handle(i2c_handle), i2c_address(i2c_address)
 {
 	HAL_StatusTypeDef status;
@@ -41,6 +50,11 @@ TMP100::TMP100(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address) : i2c_handle(
 	}
 }
 
+/**
+ * @brief Writes a configuration byte to the Configuration Register of the TMP100.
+ * @param config_byte The configuration byte to write to the Configuration Register.
+ * @return The HAL status of the I2C transmission.
+ */
 HAL_StatusTypeDef TMP100::writeConfigurationReg(uint8_t config_byte)
 {
 	HAL_StatusTypeDef status;
@@ -65,6 +79,11 @@ HAL_StatusTypeDef TMP100::writeConfigurationReg(uint8_t config_byte)
 	return HAL_OK;
 }
 
+/**
+ * @brief Triggers a one-shot temperature conversion on the TMP100.
+ * @return The HAL status of the I2C operations. Returns HAL_ERROR if the sensor is
+ * not in shutdown mode or if an I2C operation fails.
+ */
 HAL_StatusTypeDef TMP100::triggerOneShotTemperatureConversion()
 {
 	HAL_StatusTypeDef status;
@@ -96,6 +115,11 @@ HAL_StatusTypeDef TMP100::triggerOneShotTemperatureConversion()
 	return HAL_OK;
 }
 
+/**
+ * @brief Reads the raw temperature data from the Temperature Register of the TMP100.
+ * @param temperature Pointer to a 16-bit variable where the raw temperature data will be stored.
+ * @return The HAL status of the I2C operation.
+ */
 HAL_StatusTypeDef TMP100::readTemperatureReg(uint16_t *temperature)
 {
 	if (temperature == nullptr)
@@ -130,6 +154,11 @@ HAL_StatusTypeDef TMP100::readTemperatureReg(uint16_t *temperature)
 	return HAL_OK;
 }
 
+/**
+ * @brief Converts raw temperature data from the TMP100 to Celsius.
+ * @param raw_temperature_data The 16-bit raw temperature data read from the TMP100.
+ * @return The converted temperature in Celsius.
+ */
 float TMP100::convertRawTemperatureDataToCelsius(uint16_t raw_temperature_data)
 {
 	int shift_amount = this->resolution_bit_shift[this->resolution_bits];
@@ -145,15 +174,26 @@ float TMP100::convertRawTemperatureDataToCelsius(uint16_t raw_temperature_data)
 	return celsius * this->resolution[this->resolution_bits];
 }
 
-// ------------------------------------------------------------------------------------------------
-// Private Methods
-// ------------------------------------------------------------------------------------------------
+/**
+ * ------------------------------------------------------------------------------------------------
+ * @section Private_Methods Private Methods
+ * ------------------------------------------------------------------------------------------------
+ */
 
+/**
+ * @brief Updates the resolution bits based on the configuration byte.
+ * @param config_byte The configuration byte read from the Configuration Register of the TMP100.
+ */
 void TMP100::updateResolutionBits(uint8_t config_byte)
 {
 	this->resolution_bits = (config_byte & R1R0_BIT_MASK) >> RESOLUTION_BIT_SHIFT;
 }
 
+/**
+ * @brief Writes to the Pointer Register of the TMP100.
+ * @param reg_address The address of the register to select (e.g. Temperature, Configuration, T_LOW, or T_HIGH registers).
+ * @return The HAL status of the I2C transmission.
+ */
 HAL_StatusTypeDef TMP100::writePointerReg(uint8_t reg_address)
 {
 	HAL_StatusTypeDef status;
@@ -168,6 +208,11 @@ HAL_StatusTypeDef TMP100::writePointerReg(uint8_t reg_address)
 	return status;
 }
 
+/**
+ * @brief Reads the configuration byte from the Configuration Register of the TMP100.
+ * @param config_byte Pointer to an 8-bit variable where the configuration byte will be stored.
+ * @return THe HAL status of the I2C operation.
+ */
 HAL_StatusTypeDef TMP100::readConfigurationReg(uint8_t *config_byte)
 {
 	if (config_byte == nullptr)
@@ -202,9 +247,11 @@ HAL_StatusTypeDef TMP100::readConfigurationReg(uint8_t *config_byte)
 	return HAL_OK;
 }
 
-// ------------------------------------------------------------------------------------------------
-// Static Constants
-// ------------------------------------------------------------------------------------------------
+/**
+ * ------------------------------------------------------------------------------------------------
+ * @section Static_Constants Static Constants
+ * ------------------------------------------------------------------------------------------------
+ */
 
 const float TMP100::resolution[4] = {0.5, 0.25, 0.125, 0.0625};
 const int TMP100::resolution_conversion_time[4] = {40, 80, 160, 320};

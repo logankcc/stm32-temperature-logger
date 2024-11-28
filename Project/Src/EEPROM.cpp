@@ -1,6 +1,9 @@
-// eeprom.cpp -------------------------------------------------------------------------------------
-// Implementation file for the EEPROM class.
-// ------------------------------------------------------------------------------------------------
+/**
+ * ------------------------------------------------------------------------------------------------
+ * @file eeprom.cpp
+ * @brief Implementation file for the EEPROM class.
+ * ------------------------------------------------------------------------------------------------
+ */
 
 #include "eeprom.h"
 #include "project_utility.h"
@@ -14,15 +17,27 @@ constexpr uint32_t EEPROM_WRITE_CYCLE_DELAY_MS = 5;
 
 using utility::getI2CReadAddress, utility::getI2CWriteAddress;
 
-// ------------------------------------------------------------------------------------------------
-// Public Methods
-// ------------------------------------------------------------------------------------------------
+/**
+ * ------------------------------------------------------------------------------------------------
+ * @section Public_Methods Public Methods
+ * ------------------------------------------------------------------------------------------------
+ */
 
+/**
+ * @brief Constructs an EEPROM object with the specified I2C handle and address.
+ * @param i2c_handle Pointer to the I2C handle used for communication.
+ * @param i2c_address The 7-bit I2C address of the EEPROM device.
+ */
 EEPROM::EEPROM(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address) : i2c_handle(i2c_handle), i2c_address(i2c_address)
 {
     this->current_write_address = EEPROM_MIN_ADDRESS;
 }
 
+/**
+ * @brief Builds a four-byte write buffer containing the current EEPROM write address and 16-bit data value.
+ * @param buffer Pointer to a buffer where the address and data will be stored.
+ * @param data The 16-bit data to be written to the EEPROM.
+ */
 void EEPROM::buildWriteBuffer(uint8_t *buffer, uint16_t data)
 {
     buffer[0] = this->current_write_address >> 8;
@@ -31,12 +46,23 @@ void EEPROM::buildWriteBuffer(uint8_t *buffer, uint16_t data)
     buffer[3] = data;
 }
 
+/**
+ * @brief Builds a two-byte address buffer containing the EEPROM memory address.
+ * @param address_buffer Pointer to a buffer where the address will be stored.
+ * @param memory_address The 16-bit memory address to read from.
+ */
+
 void EEPROM::buildAddressBuffer(uint8_t *address_buffer, uint16_t memory_address)
 {
     address_buffer[0] = memory_address >> 8;
     address_buffer[1] = memory_address;
 }
 
+/**
+ * @brief Writes two bytes of data to the EEPROM at the current write address.
+ * @param data The 16-bit data value to be written to the EEPROM.
+ * @return The HAL status of the I2C transmission.
+ */
 HAL_StatusTypeDef EEPROM::writeTwoBytes(uint16_t data)
 {
     HAL_StatusTypeDef status;
@@ -67,6 +93,12 @@ HAL_StatusTypeDef EEPROM::writeTwoBytes(uint16_t data)
     return HAL_OK;
 }
 
+/**
+ * @brief Reads two bytes of data from the specified EEPROM memory address.
+ * @param memory_address The 16-bit valid memory address (0x0000 to 0x7FFF) to read from.
+ * @param data Pointer to a 16-bit variable where the read data will be stored.
+ * @return The HAL status of the I2C transmission.
+ */
 HAL_StatusTypeDef EEPROM::readTwoBytes(uint16_t memory_address, uint16_t *data)
 {
     if (memory_address < EEPROM_MIN_ADDRESS || memory_address > EEPROM_MAX_ADDRESS)
