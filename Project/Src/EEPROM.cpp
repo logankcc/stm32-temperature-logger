@@ -34,6 +34,15 @@ EEPROM::EEPROM(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address) : i2c_handle(
 }
 
 /**
+ * @brief Retrieves the current write address of the EEPROM.
+ * @return The 16-bit current write address.
+ */
+uint16_t EEPROM::getCurrentWriteAddress()
+{
+    return this->current_write_address;
+}
+
+/**
  * @brief Builds a four-byte write buffer containing the current EEPROM write address and 16-bit data value.
  * @param buffer Pointer to a buffer where the address and data will be stored.
  * @param data The 16-bit data to be written to the EEPROM.

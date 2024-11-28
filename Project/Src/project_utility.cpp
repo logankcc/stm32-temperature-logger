@@ -41,7 +41,7 @@ namespace utility
      * @param uart_handle Pointer to the UART handle used for transmission.
      * @param message The null-terminated error message to transmit.
      */
-    void logMessage(UART_HandleTypeDef *uart_handle, const char *message)
+    void logMessage(UART_HandleTypeDef *uart_handle, char *message)
     {
         if (uart_handle && message)
         {
@@ -50,23 +50,23 @@ namespace utility
     }
 
     /**
-     * @brief Logs an error message via UART.
+     * @brief Logs a status message via UART.
      * @param uart_handle Pointer to the UART handle used for transmission.
-     * @param error_message The null-terminated error message to transmit.
+     * @param status_message The null-terminated status message to transmit.
      */
-    void logErrorMessage(UART_HandleTypeDef *uart_handle, const char *error_message)
+    void logStatusMessage(UART_HandleTypeDef *uart_handle, char *status_message)
     {
         char uart_buffer[UART_BUFFER_SIZE];
-        size_t message_length = strlen(error_message);
+        size_t message_length = strlen(status_message);
 
         if (message_length >= sizeof(uart_buffer))
         {
-            strncpy(uart_buffer, error_message, sizeof(uart_buffer) - 1);
+            strncpy(uart_buffer, status_message, sizeof(uart_buffer) - 1);
             uart_buffer[sizeof(uart_buffer) - 1] = '\0';
         }
         else
         {
-            strcpy(uart_buffer, error_message);
+            strcpy(uart_buffer, status_message);
         }
 
         logMessage(uart_handle, uart_buffer);

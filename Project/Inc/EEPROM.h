@@ -16,6 +16,7 @@ public:
     EEPROM(I2C_HandleTypeDef *i2c_handle, uint8_t i2c_address);
 
     // Public methods
+    uint16_t getCurrentWriteAddress();
     void buildWriteBuffer(uint8_t *buffer, uint16_t data);
     void buildAddressBuffer(uint8_t *buffer, uint16_t memory_address);
     HAL_StatusTypeDef writeTwoBytes(uint16_t data);
