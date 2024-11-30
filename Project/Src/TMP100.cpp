@@ -161,17 +161,9 @@ HAL_StatusTypeDef TMP100::readTemperatureReg(uint16_t *temperature)
  */
 float TMP100::convertRawTemperatureDataToCelsius(uint16_t raw_temperature_data)
 {
-	int shift_amount = this->resolution_bit_shift[this->resolution_bits];
-	int16_t celsius = raw_temperature_data >> shift_amount;
-
-	uint16_t signed_bit = this->resolution_signed_bit[this->resolution_bits];
-	if (celsius & signed_bit)
-	{
-		uint16_t sign_extension = this->resolution_sign_extension[this->resolution_bits];
-		celsius = celsius | sign_extension;
-	}
-
-	return celsius * this->resolution[this->resolution_bits];
+	int16_t signed_raw_temperature_data = static_cast<int16_t>(raw_temperature_data);
+    signed_raw_temperature_data >>= this->resolution_bit_shift[this->resolution_bits];
+    return signed_raw_temperature_data * this->resolution[this->resolution_bits];
 }
 
 /**
@@ -256,5 +248,3 @@ HAL_StatusTypeDef TMP100::readConfigurationReg(uint8_t *config_byte)
 const float TMP100::resolution[4] = {0.5, 0.25, 0.125, 0.0625};
 const int TMP100::resolution_conversion_time[4] = {40, 80, 160, 320};
 const int TMP100::resolution_bit_shift[4] = {7, 6, 5, 4};
-const uint16_t TMP100::resolution_signed_bit[4] = {0x0200, 0x0400, 0x0800, 0x1000};
-const uint16_t TMP100::resolution_sign_extension[4] = {0xFE00, 0xFC00, 0xF800, 0xF000};

@@ -6,18 +6,15 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "project_main.h"
-#include "project_utility.h"
 #include "tmp100.h"
 #include "eeprom.h"
+#include "project_utility.h"
 
-// Program timing
-constexpr uint32_t TEN_SECOND_DELAY_MS = 10000;
-constexpr uint32_t TEN_MINUTE_DELAY_MS = 600000;
-
-// Buffer size
-constexpr size_t UART_BUFFER_SIZE = 64;
+// Delay timing
+constexpr uint32_t DELAY_MS = 1000;
 
 using utility::logStatusMessage;
 
@@ -58,6 +55,7 @@ void project_main(I2C_HandleTypeDef *i2c_handle, UART_HandleTypeDef *uart_handle
 		{
 			snprintf(status_message, sizeof(status_message), "Error: Failed to trigger One-Shot temperature conversion!\r\n");
 			logStatusMessage(uart_handle, status_message);
+			HAL_Delay(DELAY_MS);
 			continue;
 		}
 
@@ -68,28 +66,31 @@ void project_main(I2C_HandleTypeDef *i2c_handle, UART_HandleTypeDef *uart_handle
 		{
 			snprintf(status_message, sizeof(status_message), "Error: Failed to read temperature data from TMP100!\r\n");
 			logStatusMessage(uart_handle, status_message);
+			HAL_Delay(DELAY_MS);
 			continue;
 		}
 
 		// Convert raw temperature data to Celsius and log the result
 		float celsius_temperature_data = temperature_sensor.convertRawTemperatureDataToCelsius(raw_temperature_data);
-		snprintf(status_message, sizeof(status_message), "Current Temperature: %.2f°C.\r\n", celsius_temperature_data);
+		snprintf(status_message, sizeof(status_message), "Current Temperature: %.02f°C.\r\n", celsius_temperature_data);
 		logStatusMessage(uart_handle, status_message);
 
 		// Get the current write address for the EEPROM
 		uint16_t current_address = eeprom.getCurrentWriteAddress();
 
 		// Write the raw temperature data to the EEPROM
-		status = eeprom.writeTwoBytes(raw_temperature_data);
+		status = eeprom.writeTwoBytes(static_cast<uint16_t>(raw_temperature_data));
 		if (status != HAL_OK)
 		{
 			snprintf(status_message, sizeof(status_message), "Error: Failed to write temperature data to EEPROM!\r\n");
 			logStatusMessage(uart_handle, status_message);
+			HAL_Delay(DELAY_MS);
 			continue;
 		}
 
 		// Log the memory write result
-		snprintf(status_message, sizeof(status_message), "Wrote Raw Temperature Data 0x%04X to EEPROM address 0x%04X.\r\n", raw_temperature_data, current_address);
+		snprintf(status_message, sizeof(status_message), "Wrote 0x%04X to EEPROM at address 0x%04X.\r\n",
+				 static_cast<uint16_t>(raw_temperature_data), current_address);
 		logStatusMessage(uart_handle, status_message);
 
 		// Read the raw temperature data from the EEPROM
@@ -98,14 +99,15 @@ void project_main(I2C_HandleTypeDef *i2c_handle, UART_HandleTypeDef *uart_handle
 		{
 			snprintf(status_message, sizeof(status_message), "Error: Failed to read temperature data from EEPROM!\r\n");
 			logStatusMessage(uart_handle, status_message);
+			HAL_Delay(DELAY_MS);
 			continue;
 		}
 
 		// Log the memory read result
-		snprintf(status_message, sizeof(status_message), "Read Raw Temperature Data 0x%04X from EEPROM address 0x%04X.\r\n", raw_temperature_data, current_address);
+		snprintf(status_message, sizeof(status_message), "Read 0x%04X from EEPROM at address 0x%04X.\r\n",
+				 static_cast<uint16_t>(raw_temperature_data), current_address);
 		logStatusMessage(uart_handle, status_message);
 
-		// Wait for 10 seconds for the next temperature conversion
-		HAL_Delay(TEN_SECOND_DELAY_MS);
+		HAL_Delay(DELAY_MS);
 	}
 }

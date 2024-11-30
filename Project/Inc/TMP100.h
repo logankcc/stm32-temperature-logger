@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <unordered_map>
-
 #include "stm32f4xx_hal.h"
 
 class TMP100
@@ -38,6 +36,4 @@ private:
 	static const float resolution[4];
 	static const int resolution_conversion_time[4];
 	static const int resolution_bit_shift[4];
-	static const uint16_t resolution_signed_bit[4];
-	static const uint16_t resolution_sign_extension[4];
 };

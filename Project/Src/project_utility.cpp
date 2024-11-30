@@ -12,6 +12,7 @@
 
 #include "project_utility.h"
 
+// Buffer size
 constexpr size_t UART_BUFFER_SIZE = 64;
 
 namespace utility
@@ -81,7 +82,8 @@ namespace utility
     {
         char uart_buffer[UART_BUFFER_SIZE];
 
-        logMessage(uart_handle, "Scanning I2C bus...\r\n");
+        snprintf(uart_buffer, sizeof(uart_buffer), "Scanning I2C bus...\r\n");
+        logMessage(uart_handle, uart_buffer);
 
         for (uint8_t i2c_address = 0x08; i2c_address <= 0x77; i2c_address++)
         {
@@ -89,11 +91,12 @@ namespace utility
 
             if (result == HAL_OK)
             {
-                snprintf(uart_buffer, sizeof(uart_buffer), "I2C device found at address 0x%02X\r\n", i2c_address);
+                snprintf(uart_buffer, sizeof(uart_buffer), "I2C device found at address 0x%02X.\r\n", i2c_address);
                 logMessage(uart_handle, uart_buffer);
             }
         }
 
-        logMessage(uart_handle, "Scan complete.\r\n");
+        snprintf(uart_buffer, sizeof(uart_buffer), "Scan complete.\r\n");
+        logMessage(uart_handle, uart_buffer);
     }
 }
