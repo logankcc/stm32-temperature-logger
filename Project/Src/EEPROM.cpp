@@ -91,7 +91,7 @@ HAL_StatusTypeDef EEPROM::writeTwoBytes(uint16_t data)
         return status;
     }
 
-    this->current_write_address++;
+    this->current_write_address += 2;
     if (this->current_write_address > EEPROM_MAX_ADDRESS)
     {
         this->current_write_address = EEPROM_MIN_ADDRESS;
